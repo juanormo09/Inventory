@@ -16,6 +16,15 @@ public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
+	UPROPERTY(EditAnywhere, Category = "IC info | Inventory Columns")
+	int32 Columns;
+
+	UPROPERTY(EditAnywhere, Category = "IC info | Inventory Rows")
+	int32 Rows;
+	
+	UPROPERTY(EditAnywhere, Category = "IC info | Inventory Tile Size")
+	float TilesSize;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

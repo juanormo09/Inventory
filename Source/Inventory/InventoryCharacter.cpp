@@ -10,6 +10,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
+#include "UI/InventoryWidget.h"
+#include "Components/InventoryComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,12 +55,26 @@ AInventoryCharacter::AInventoryCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
+
 }
 
 void AInventoryCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	GetPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	if (GetPlayerController)
+	{
+		if (InventoryWidgetClass)
+		{
+			Inventory = CreateWidget(GetWorld(), InventoryWidgetClass);
+			Inventory->SetOwningPlayer(GetPlayerController);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,6 +103,9 @@ void AInventoryCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AInventoryCharacter::Look);
+
+		//Inventory
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &AInventoryCharacter::ToggleInventory);
 	}
 	else
 	{
@@ -126,5 +146,21 @@ void AInventoryCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AInventoryCharacter::ToggleInventory(const FInputActionValue& Value)
+{
+	if (Inventory && Inventory->IsInViewport())
+	{
+		Inventory->RemoveFromParent();
+		GetPlayerController->SetShowMouseCursor(false);
+		GetPlayerController->SetInputMode(FInputModeGameOnly());
+	}
+	else
+	{
+		Inventory->AddToViewport();
+		GetPlayerController->SetShowMouseCursor(true);
+		GetPlayerController->SetInputMode(FInputModeGameAndUI());
 	}
 }

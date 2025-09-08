@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+	// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -12,6 +12,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class UInventoryComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -44,11 +45,22 @@ class AInventoryCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InventoryAction;
+
 public:
 	AInventoryCharacter();
 	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UInventoryComponent> InventoryComponent;
 
 protected:
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> InventoryWidgetClass;
+	TObjectPtr<UUserWidget> Inventory;
+
+	TObjectPtr<APlayerController> GetPlayerController;
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -56,6 +68,7 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
+	void ToggleInventory(const FInputActionValue& Value);
 
 protected:
 	// APawn interface
