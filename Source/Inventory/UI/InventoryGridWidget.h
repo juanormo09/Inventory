@@ -38,7 +38,7 @@ protected:
 	TArray<float> EndX;
 	TArray<float> EndY;
 
-	FLines* LineStructData;
+	TObjectPtr<FLines> LineStructData;
 
 	//Functions
 
